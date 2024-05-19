@@ -1,0 +1,24 @@
+use Illuminate\Support\Facades\File;
+
+private function uploadFile($request, $oldFile=null)
+    {
+        $fileName = '';
+
+        if ($request->hasFile('file')) {
+
+            if($oldFile)
+            {
+                $filePath = storage_path('app/dir_name/' . $oldFile);
+
+                if (file_exists($filePath)) 
+                    File::delete($filePath);
+                
+            }
+
+            $file = $request->file('file');
+            $fileName = auth()->user()->id . '.' . str_random(64) . '.' . $file->getClientOriginalExtension();
+            $file->storeAs('dir_name', $fileName);
+        }
+
+        return $fileName;
+    }
