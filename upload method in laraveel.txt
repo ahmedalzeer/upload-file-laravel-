@@ -1,24 +1,40 @@
+<?php
+
+namespace App\Traits;
+
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
-private function uploadFile($request, $oldFile=null)
+trait UploadFiles
+{
+    /**
+     * Upload a file and delete the old file if provided.
+     *
+     * @param \Illuminate\Http\UploadedFile|null $file
+     * @param string|null $oldFile
+     * @return string
+     */
+    public static function uploadFile(?UploadedFile $file, ?string $oldFile = null): string
     {
-        $fileName = '';
-
-        if ($request->hasFile('file')) {
-
-            if($oldFile)
-            {
-                $filePath = storage_path('app/dir_name/' . $oldFile);
-
-                if (file_exists($filePath)) 
-                    File::delete($filePath);
-                
-            }
-
-            $file = $request->file('file');
-            $fileName = auth()->user()->id . '.' . str_random(64) . '.' . $file->getClientOriginalExtension();
-            $file->storeAs('dir_name', $fileName);
+        if ($file === null) {
+            return '';
         }
+
+
+        if ($oldFile !== null) {
+            $oldFilePath = storage_path('app/assets-files/' . $oldFile);
+
+            if (file_exists($oldFilePath)) {
+                File::delete($oldFilePath);
+            }
+        }
+
+        $fileName = time() . '.' . $file->getClientOriginalExtension();
+
+        $file->storeAs('assets-files', $fileName);
 
         return $fileName;
     }
+}
